@@ -1,0 +1,7 @@
+channels:
+- currentCSV: silicon-pod-operator.v0.0.1
+  name: alpha
+- currentCSV: silicon-pod-operator.v0.0.1
+  name: alpha
+defaultChannel: alpha
+packageName: silicon-pod-operator

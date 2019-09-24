@@ -1,0 +1,118 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[{"apiVersion":"app.siliconpod.com/v1alpha1","kind":"SiliconPod","metadata":{"name":"example-siliconpod"},"spec":{"size":3}}]'
+    capabilities: Basic Install
+  name: silicon-pod-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions: {}
+  description: Placeholder description
+  displayName: Silicon Pod Operator
+  install:
+    spec:
+      deployments:
+      - name: silicon-pod-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: silicon-pod-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: silicon-pod-operator
+            spec:
+              containers:
+              - command:
+                - silicon-pod-operator
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: silicon-pod-operator
+                image: REPLACE_IMAGE
+                imagePullPolicy: Always
+                name: silicon-pod-operator
+                resources: {}
+              serviceAccountName: silicon-pod-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - silicon-pod-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          verbs:
+          - get
+        - apiGroups:
+          - app.siliconpod.com
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        serviceAccountName: silicon-pod-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  maturity: alpha
+  provider: {}
+  version: 0.0.1
