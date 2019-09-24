@@ -139,8 +139,8 @@ func main() {
 	}
 
 	//aputtur
-	timer := prometheus.NewTimer(localmetrics.MetricPagerDutyHeartbeat)
-	go localmetrics.UpdateAPIMetrics(APIKey, timer)
+	//	timer := prometheus.NewTimer(localmetrics.MetricPagerDutyHeartbeat)
+	//	go localmetrics.UpdateAPIMetrics(APIKey, timer)
 
 	log.Info("Starting the Cmd.")
 

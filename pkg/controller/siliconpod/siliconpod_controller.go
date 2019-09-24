@@ -4,6 +4,7 @@ import (
 	"context"
 
 	appv1alpha1 "github.com/aneeshkp/silicon-pod-operator/pkg/apis/app/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -101,19 +102,19 @@ func (r *ReconcileSiliconPod) Reconcile(request reconcile.Request) (reconcile.Re
 	}
 
 	// Define a new Pod object
-	pod := newPodForCR(instance)
+	deployment := newDeploymentForCR(instance)
 
 	// Set SiliconPod instance as the owner and controller
-	if err := controllerutil.SetControllerReference(instance, pod, r.scheme); err != nil {
+	if err := controllerutil.SetControllerReference(instance, deployment, r.scheme); err != nil {
 		return reconcile.Result{}, err
 	}
 
 	// Check if this Pod already exists
-	found := &corev1.Pod{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}, found)
+	found := &appsv1.Deployment{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
-		reqLogger.Info("Creating a new Pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
-		err = r.client.Create(context.TODO(), pod)
+		reqLogger.Info("Creating a new deployment", "deployment.Namespace", deployment.Namespace, "deployment.Name", deployment.Name)
+		err = r.client.Create(context.TODO(), deployment)
 		if err != nil {
 			return reconcile.Result{}, err
 		}
@@ -122,6 +123,15 @@ func (r *ReconcileSiliconPod) Reconcile(request reconcile.Request) (reconcile.Re
 		return reconcile.Result{}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
+	}
+	//if instance.Spec.size!=*found.Spec.Replicas
+	if instance.Spec.Size != *found.Spec.Replicas {
+		found.Spec.Replicas = &instance.Spec.Size
+		err = r.client.Update(context.TODO(), found)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+		return reconcile.Result{}, nil
 	}
 
 	// Pod already exists - don't requeue
@@ -150,4 +160,42 @@ func newPodForCR(cr *appv1alpha1.SiliconPod) *corev1.Pod {
 			},
 		},
 	}
+}
+
+// Create newDeploymentForCR method to create a deployment.
+func newDeploymentForCR(m *appv1alpha1.SiliconPod) *appsv1.Deployment {
+	labels := map[string]string{
+		"app": m.Name,
+	}
+	replicas := m.Spec.Size
+	dep := &appsv1.Deployment{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "apps/v1",
+			Kind:       "Deployment",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      m.Name,
+			Namespace: m.Namespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: &replicas,
+			Selector: &metav1.LabelSelector{
+				MatchLabels: labels,
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: labels,
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{
+						Image: "busybox",
+						Name:  "m.Name",
+					}},
+				},
+			},
+		},
+	}
+	// Set Examplekind instance as the owner and controller
+	return dep
+
 }
