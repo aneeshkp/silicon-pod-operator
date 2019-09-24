@@ -1,0 +1,7 @@
+apiVersion: app.siliconpod.com/v1alpha1
+kind: SiliconPod
+metadata:
+  name: example-siliconpod
+spec:
+  # Add fields here
+  size: 3
