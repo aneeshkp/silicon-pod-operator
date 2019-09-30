@@ -1,16 +1,16 @@
 #!/bin/sh
 
 if [[ -z ${1} ]]; then
-    CATALOG_NS="marketplace"
+    CATALOG_NS="openshift-marketplace"
 else
     CATALOG_NS=${1}
 fi
 
-CSV=`cat deploy/olm-catalog/silicon-pod-operator/0.0.1/silicon-pod-operator.v0.0.1.clusterserviceversion | sed -e 's/^/          /' | sed '0,/ /{s/          /        - /}'`
+CSV=`cat  deploy/olm-catalog/silicon-pod-operator/0.0.1/silicon-pod-operator.v0.0.1.clusterserviceversion.yaml | sed -e 's/^/          /' | sed '0,/ /{s/          /        - /}'`
 CRD=`cat deploy/crds/app_v1alpha1_siliconpod_crd.yaml  | sed -e 's/^/          /' | sed '0,/ /{s/          /        - /}'`
 PKG=`cat deploy/olm-catalog/silicon-pod-operator/silicon-pod-operator.package.yaml | sed -e 's/^/          /' | sed '0,/ /{s/          /        - /}'`
 
-cat << EOF > deploy/olm-catalog/silicon-pod-operator/0.1.0/catalog-source.yaml
+cat << EOF > deploy/olm-catalog/silicon-pod-operator/catalog-source.yaml
 apiVersion: v1
 kind: List
 items:

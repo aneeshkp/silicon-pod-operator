@@ -8,7 +8,6 @@ metadata:
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
-  customresourcedefinitions: {}
   description: Placeholder description
   displayName: Silicon Pod Operator
   install:
@@ -116,3 +115,11 @@ spec:
   maturity: alpha
   provider: {}
   version: 0.0.1
+
+  customresourcedefinitions:
+    owned:
+      - kind: SiliconPod
+        name: siliconpods.app.siliconpod.com
+        version: v1alpha1
+        displayName: SiliconPod
+        description: SmartGateway Events/Metrics Deployment with the Operator  
