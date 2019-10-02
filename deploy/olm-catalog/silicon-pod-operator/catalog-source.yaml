@@ -14,11 +14,11 @@ items:
             annotations:
               alm-examples: '[{"apiVersion":"app.siliconpod.com/v1alpha1","kind":"SiliconPod","metadata":{"name":"example-siliconpod"},"spec":{"size":3}}]'
               capabilities: Basic Install
+              categories: Monitoring
             name: silicon-pod-operator.v0.0.1
             namespace: placeholder
           spec:
             apiservicedefinitions: {}
-            customresourcedefinitions: {}
             description: Placeholder description
             displayName: Silicon Pod Operator
             install:
@@ -50,7 +50,7 @@ items:
                                 fieldPath: metadata.name
                           - name: OPERATOR_NAME
                             value: silicon-pod-operator
-                          image: REPLACE_IMAGE
+                          image: quay.io/aneeshkp/silicon-pod-operator:latest
                           imagePullPolicy: Always
                           name: silicon-pod-operator
                           resources: {}
@@ -126,6 +126,14 @@ items:
             maturity: alpha
             provider: {}
             version: 0.0.1
+          
+            customresourcedefinitions:
+              owned:
+                - kind: SiliconPod
+                  name: siliconpods.app.siliconpod.com
+                  version: v1alpha1
+                  displayName: SiliconPod
+                  description: SiliconPod Deployment with the Operator  
       customResourceDefinitions: |
         - apiVersion: apiextensions.k8s.io/v1beta1
           kind: CustomResourceDefinition
